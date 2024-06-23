@@ -9,33 +9,6 @@ import (
 	"net/http"
 )
 
-func GetStatus(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data": gin.H{
-			"version":             common.Version,
-			"start_time":          common.StartTime,
-			"email_verification":  common.EmailVerificationEnabled,
-			"github_oauth":        common.GitHubOAuthEnabled,
-			"github_client_id":    common.GitHubClientId,
-			"system_name":         common.SystemName,
-			"home_page_link":      common.HomePageLink,
-			"footer_html":         common.Footer,
-			"wechat_qrcode":       common.WeChatAccountQRCodeImageURL,
-			"wechat_login":        common.WeChatAuthEnabled,
-			"server_address":      common.ServerAddress,
-			"turnstile_check":     common.TurnstileCheckEnabled,
-			"turnstile_site_key":  common.TurnstileSiteKey,
-			"message_persistence": common.MessagePersistenceEnabled,
-			"message_render":      common.MessageRenderEnabled,
-			"message_count":       common.MessageCount,
-			"user_count":          common.UserCount,
-		},
-	})
-	return
-}
-
 func GetNotice(c *gin.Context) {
 	common.OptionMapRWMutex.RLock()
 	defer common.OptionMapRWMutex.RUnlock()

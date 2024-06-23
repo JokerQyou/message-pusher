@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useContext, useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import Loading from './components/Loading';
 import User from './pages/User';
 import { PrivateRoute } from './components/PrivateRoute';
@@ -14,7 +14,6 @@ import PasswordResetForm from './components/PasswordResetForm';
 import GitHubOAuth from './components/GitHubOAuth';
 import PasswordResetConfirm from './components/PasswordResetConfirm';
 import { UserContext } from './context/User';
-import { StatusContext } from './context/Status';
 import Message from './pages/Message';
 import Channel from './pages/Channel';
 import EditChannel from './pages/Channel/EditChannel';
@@ -22,12 +21,10 @@ import EditMessage from './pages/Message/EditMessage';
 import Webhook from './pages/Webhook';
 import EditWebhook from './pages/Webhook/EditWebhook';
 
-const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
 
 function App() {
   const [userState, userDispatch] = useContext(UserContext);
-  const [statusState, statusDispatch] = useContext(StatusContext);
 
   const loadUser = () => {
     let user = localStorage.getItem('user');
@@ -36,31 +33,9 @@ function App() {
       userDispatch({ type: 'login', payload: data });
     }
   };
-  const loadStatus = async () => {
-    const res = await API.get('/api/status');
-    const { success, data } = res.data;
-    if (success) {
-      localStorage.setItem('status', JSON.stringify(data));
-      statusDispatch({ type: 'set', payload: data });
-      localStorage.setItem('footer_html', data.footer_html);
-      localStorage.setItem('home_page_link', data.home_page_link);
-      if (
-        data.version !== process.env.REACT_APP_VERSION &&
-        data.version !== 'v0.0.0' &&
-        process.env.REACT_APP_VERSION !== ''
-      ) {
-        showNotice(
-          `新版本可用：${data.version}，请使用快捷键 Shift + F5 刷新页面`
-        );
-      }
-    } else {
-      showError('无法正常连接至服务器！');
-    }
-  };
 
   useEffect(() => {
     loadUser();
-    loadStatus().then();
   }, []);
 
   return (
@@ -68,9 +43,7 @@ function App() {
       <Route
         path='/'
         element={
-          <Suspense fallback={<Loading></Loading>}>
-            <Home />
-          </Suspense>
+          <Navigate to="/login" replace />
         }
       />
       <Route
